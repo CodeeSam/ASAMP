@@ -54,7 +54,8 @@ def run_prediction(sequences, names):
     return pd.DataFrame(results)
 
 # 4. INTERFACE
-st.title("🧬 PMB-AMP-BERT Predictor 🧬")
+st.title("ASAMP")
+st.subheader("AntiMicrobial Peptide Predictor")
 
 tab1, tab2 = st.tabs(["Single Prediction", "Batch Prediction"])
 
