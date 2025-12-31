@@ -29,7 +29,8 @@ def load_model():
     
     model = TFBertForSequenceClassification.from_pretrained(
         HF_MODEL_PATH,
-        from_pt=False
+        from_pt=False,
+        low_cpu_mem_usage=True
     )
     
     return tokenizer, model
