@@ -1,11 +1,15 @@
 import streamlit as st
-import requests
-import pandas as pd
-import numpy as np
+import os
+import zipfile
+from transformers import TFBertForSequenceClassification, BertTokenizer
 from Bio import SeqIO
 from io import StringIO
+import numpy as np
+import pandas as pd
 
+# ----------------------
 # 1. PAGE CONFIGURATION
+# ----------------------
 st.set_page_config(page_title="AntiMicrobial Peptide Predictor", page_icon="🧬", layout="wide")
 
 st.markdown("""
@@ -15,46 +19,73 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 2. API CONFIGURATION
-API_URL = "https://router.huggingface.co/models/Pharmson/temp-pharmson-weights-beta"
-HF_TOKEN = st.secrets["HF_TOKEN"]
+# ----------------------
+# 2. GOOGLE DRIVE MODEL CONFIG
+# ----------------------
+MODEL_DIR = "model_files"
+MODEL_ZIP = "trained_model.zip"
+FILE_ID = "1Sy3DFUUchP9HkgYXr0cGc1RedXgyrD_p"
+DOWNLOAD_URL = f"https://drive.google.com/file/d/1Sy3DFUUchP9HkgYXr0cGc1RedXgyrD_p/view?usp=sharing{FILE_ID}"
 
-headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+import gdown
 
-def query_api(text):
-    # ProtBERT models need spaces between amino acids
-    spaced_text = " ".join(list(text.strip().replace(" ", "")))
-    response = requests.post(API_URL, headers=headers, json={"inputs": spaced_text})
-    return response.json()
+@st.cache_resource
+def load_model():
+    # Download ZIP if not exists
+    if not os.path.exists(MODEL_DIR):
+        st.info("Downloading model... This may take a few minutes ⏳")
+        gdown.download(DOWNLOAD_URL, MODEL_ZIP, quiet=False)
 
-# 3. CORE LOGIC
+        # Extract ZIP
+        with zipfile.ZipFile(MODEL_ZIP, "r") as zip_ref:
+            zip_ref.extractall(MODEL_DIR)
+    
+    # Load model and tokenizer
+    model = TFBertForSequenceClassification.from_pretrained(MODEL_DIR, from_tf=True)
+    tokenizer = BertTokenizer.from_pretrained(MODEL_DIR)
+    
+    return model, tokenizer
+
+model, tokenizer = load_model()
+
+# ----------------------
+# 3. CORE LOGIC FOR PREDICTION
+# ----------------------
+def predict_sequence(seq):
+    # Tokenize
+    tokens = tokenizer(" ".join(list(seq.strip().replace(" ", ""))),
+                       return_tensors="tf", padding=True, truncation=True)
+    outputs = model(tokens)
+    logits = outputs.logits.numpy()[0]
+
+    # Assuming Index 1 = AMP, Index 0 = Non-AMP
+    is_amp = logits[1] > logits[0]
+    confidence = float(logits[1]) if is_amp else float(logits[0])
+    return "AMP" if is_amp else "Non-AMP", round(confidence, 4)
+
 def run_prediction(sequences, names):
     results = []
     progress_bar = st.progress(0)
-    
+
     for i, (seq, name) in enumerate(zip(sequences, names)):
         try:
-            output = query_api(seq)
-            # The API returns: [[{'label': 'LABEL_0', 'score': 0.1}, {'label': 'LABEL_1', 'score': 0.9}]]
-            scores = output[0] 
-            
-            # Assuming Index 1 is AMP and Index 0 is Non-AMP
-            is_amp = scores[1]['score'] > scores[0]['score']
-            confidence = scores[1]['score'] if is_amp else scores[0]['score']
-            
+            pred, conf = predict_sequence(seq)
             results.append({
                 "ID": name,
                 "Sequence": seq,
-                "Prediction": "AMP" if is_amp else "Non-AMP",
-                "Confidence": round(float(confidence), 4)
+                "Prediction": pred,
+                "Confidence": conf
             })
         except Exception:
-            results.append({"ID": name, "Sequence": seq, "Prediction": "API Loading/Error", "Confidence": 0.0})
-            
+            results.append({"ID": name, "Sequence": seq, "Prediction": "Error", "Confidence": 0.0})
+        
         progress_bar.progress((i + 1) / len(sequences))
+    
     return pd.DataFrame(results)
 
-# 4. INTERFACE
+# ----------------------
+# 4. STREAMLIT INTERFACE
+# ----------------------
 st.title("ASAMP")
 st.subheader("AntiMicrobial Peptide Predictor")
 
@@ -67,27 +98,19 @@ with tab1:
             st.warning("Sequence must be at least 5 amino acids long.")
         else:
             with st.spinner("Analyzing..."):
-                data = query_api(user_seq)
-                try:
-                    scores = data[0]
-                    amp_prob = scores[1]['score']
-                    non_amp_prob = scores[0]['score']
-                    
-                    if amp_prob > non_amp_prob:
-                        st.success(f"**Result: AMP** (Confidence: {amp_prob:.2%})")
-                    else:
-                        st.error(f"**Result: Non-AMP** (Confidence: {non_amp_prob:.2%})")
-                except:
-                    st.error("Model is still waking up on Hugging Face. Please try again in 30 seconds.")
+                pred, conf = predict_sequence(user_seq)
+                if pred == "AMP":
+                    st.success(f"**Result: AMP** (Confidence: {conf:.2%})")
+                else:
+                    st.error(f"**Result: Non-AMP** (Confidence: {conf:.2%})")
 
 with tab2:
     st.subheader("Multiple Sequence Input")
     st.write("Paste multiple sequences in FASTA format or upload a file.")
-    
+
     input_type = st.radio("Choose Input Method:", ["Paste FASTA", "Upload .fasta File"])
-    
     sequences, names = [], []
-    
+
     if input_type == "Paste FASTA":
         pasted = st.text_area("Paste FASTA here:", height=200, placeholder=">Seq1\nKLLKLLK\n>Seq2\nMAGGG")
         if pasted:
