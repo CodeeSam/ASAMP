@@ -25,7 +25,7 @@ st.markdown("""
 MODEL_DIR = "model_files"
 MODEL_ZIP = "trained_model.zip"
 FILE_ID = "1Sy3DFUUchP9HkgYXr0cGc1RedXgyrD_p"
-DOWNLOAD_URL = f"https://drive.google.com/file/d/1Sy3DFUUchP9HkgYXr0cGc1RedXgyrD_p/view?usp=sharing{FILE_ID}"
+DOWNLOAD_URL = f"https://drive.google.com/uc?id={FILE_ID}"
 
 import gdown
 
