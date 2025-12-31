@@ -16,7 +16,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # 2. API CONFIGURATION
-API_URL = "https://api-inference.huggingface.co/models/Pharmson/temp-pharmson-weights-beta"
+API_URL = "https://router.huggingface.co/models/Pharmson/temp-pharmson-weights-beta"
 HF_TOKEN = st.secrets["HF_TOKEN"]
 
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
