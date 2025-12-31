@@ -17,15 +17,42 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # 2. MODEL LOADING
-HF_MODEL_PATH = "Pharmson/temp-pharmson-weights-beta" 
+HF_MODEL_PATH = "Pharmson/temp-pharmson-weights-beta"
 
 @st.cache_resource
 def load_model():
-    tokenizer = BertTokenizer.from_pretrained(HF_MODEL_PATH)
-    model = TFBertForSequenceClassification.from_pretrained(HF_MODEL_PATH)
+    tokenizer = BertTokenizer.from_pretrained(
+        "Rostlab/prot_bert", 
+        do_lower_case=False,
+        local_files_only=False
+    )
+    
+    model = TFBertForSequenceClassification.from_pretrained(
+        HF_MODEL_PATH,
+        from_pt=False
+    )
+    
     return tokenizer, model
 
-tokenizer, model = load_model()
+
+try:
+    with st.spinner("Downloading Model... This may take a few minutes"):
+        tokenizer, model = load_model()
+    st.success("Model loaded successfully!")
+except Exception as e:
+    st.error(f"Failed to load model. Error: {e}")
+    st.stop()
+
+
+# BASE_PROTBERT = "Rostlab/prot_bert"
+
+# @st.cache_resource
+# def load_model():
+#     tokenizer = BertTokenizer.from_pretrained(BASE_PROTBERT, do_lower_case=False)
+#     model = TFBertForSequenceClassification.from_pretrained(HF_MODEL_PATH)
+#     return tokenizer, model
+
+# tokenizer, model = load_model()
 
 # 3. CORE LOGIC
 def preprocess_sequence(seq):
