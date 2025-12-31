@@ -21,7 +21,7 @@ HF_MODEL_PATH = "Pharmson/temp-pharmson-weights-beta"
 
 @st.cache_resource
 def load_model():
-    tokenizer = BertTokenizer.from_pretrained.from_pretrained(HF_MODEL_PATH)
+    tokenizer = BertTokenizer.from_pretrained(HF_MODEL_PATH)
     model = TFBertForSequenceClassification.from_pretrained(HF_MODEL_PATH)
     return tokenizer, model
 
