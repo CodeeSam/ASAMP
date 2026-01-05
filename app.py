@@ -24,7 +24,7 @@ st.markdown("""
 # ----------------------
 MODEL_DIR = "model_files"
 MODEL_ZIP = "trained_model.zip"
-FILE_ID = "1Sy3DFUUchP9HkgYXr0cGc1RedXgyrD_p"
+FILE_ID = "1f27bgt-1gJ3iVJWrXnOkYJ6uKPPJLcww"
 DOWNLOAD_URL = f"https://drive.google.com/uc?id={FILE_ID}"
 
 import gdown
