@@ -1,8 +1,8 @@
 streamlit
 tensorflow
-torch
 tf-keras
 transformers
+tokenizers
 biopython
 pandas
 numpy
