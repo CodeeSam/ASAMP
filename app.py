@@ -26,7 +26,7 @@ st.markdown("""
 # ----------------------
 MODEL_DIR = "model_files"
 MODEL_ZIP = "trained_model.zip"
-FILE_ID = "1f27bgt-1gJ3iVJWrXnOkYJ6uKPPJLcww"
+FILE_ID = "1uNwLrxqTiqI0z0DddrgsZcxUf9EqHx-n"
 DOWNLOAD_URL = f"https://drive.google.com/uc?id={FILE_ID}"
 
 # ----------------------
