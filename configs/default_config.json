@@ -1,0 +1,120 @@
+{
+  "notebook_1": {
+    "description": "AMP classifier training configuration",
+
+    "data": {
+      "amp_fasta": "/kaggle/input/datasets/<your-dataset-slug>/data-files/full_AMPs.fasta",
+      "srr_csv": "/kaggle/input/datasets/<your-dataset-slug>/data-files/accession_list.csv",
+      "download_nonamp_from_uniprot": true,
+      "nonamp_target_multiplier": 1.0,
+      "min_len": 10,
+      "max_len": 50,
+      "valid_aas": "ACDEFGHIKLMNPQRSTVWY"
+    },
+
+    "clustering": {
+      "cdhit_identity": 0.80,
+      "cdhit_word_length": 5,
+      "cdhit_memory_mb": 32000,
+      "cdhit_threads": 2
+    },
+
+    "split": {
+      "test_size": 0.15,
+      "val_size": 0.15,
+      "split_seed": 42
+    },
+
+    "model": {
+      "model_name": "Rostlab/prot_bert",
+      "max_length_tokens": 52,
+      "dropout": 0.20,
+      "classifier_hidden_dim": 256,
+      "trainable_encoder_layers": 2
+    },
+
+    "training": {
+      "seed": 42,
+      "batch_size": 16,
+      "num_workers": 2,
+      "epochs": 6,
+      "learning_rate": 2e-5,
+      "weight_decay": 1e-4,
+      "warmup_ratio": 0.10,
+      "max_grad_norm": 1.0,
+      "label_smoothing": 0.02,
+      "early_stopping_patience": 3,
+      "monitor_metric": "val_mcc",
+      "use_amp": true
+    },
+
+    "external_benchmark": {
+      "n_amp": 250,
+      "n_nonamp": 250,
+      "dbaasp_csv": "/kaggle/input/datasets/samco<your-dataset-slug>/peptides/Dataset_AMPs_MICs.csv"
+    }
+  },
+
+  "notebook_2": {
+    "description": "Metagenome AMP discovery pipeline configuration",
+
+    "data": {
+      "sample_sheet": "/kaggle/input/datasets/<your-dataset-slug>/data-files/accession_list.csv",
+      "body_site_col": "body_site",
+      "accession_col": "SRR_ID",
+      "min_len_aa": 10,
+      "max_len_aa": 50
+    },
+
+    "pipeline_flags": {
+      "run_download": true,
+      "run_fastp": true,
+      "run_megahit": true,
+      "run_metaprodigal": true,
+      "run_cdhit": true,
+      "run_prediction": true,
+      "limit_samples": null,
+      "overwrite": false,
+      "skip_existing": true
+    },
+
+    "fastp": {
+      "threads": 4,
+      "min_length": 50
+    },
+
+    "megahit": {
+      "threads": 4,
+      "min_contig_len": 200
+    },
+
+    "prodigal": {
+      "mode": "meta"
+    },
+
+    "cdhit": {
+      "identity": 0.90,
+      "word_size": 5,
+      "threads": 4,
+      "memory_mb": 3200
+    },
+
+    "prediction": {
+      "batch_size": 32,
+      "pred_threshold": 0.50,
+      "high_conf_threshold": 0.90
+    },
+
+    "candidate_tiers": {
+      "tier1": {
+        "prob_amp_min": 0.9,
+        "charge_ph74_min": 2,
+        "gravy_max": 0.5
+      },
+      "tier2": {
+        "prob_amp_min": 0.8,
+        "charge_ph74_min": 1
+      }
+    }
+  }
+}

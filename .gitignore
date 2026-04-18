@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Jupyter / Kaggle
+.ipynb_checkpoints/
+*.ipynb
+
+# Data and model weights (too large for git)
+*.pt
+*.bin
+*.safetensors
+*.fasta
+*.faa
+*.fastq
+*.fastq.gz
+*.fna
+*.gff
+
+# Large output files
+*.csv
+*.tsv
+*.json
+
+# Exceptions: keep config and docs JSONs
+!configs/default_config.json
+
+# Figures (generated at runtime)
+figures/
+*.png
+*.pdf
+*.svg
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environments
+.env
+.venv
+env/
+venv/
