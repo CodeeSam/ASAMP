@@ -27,6 +27,8 @@ script.
 
 ```text
 ASAMP/
+├──Supplementary_Figures
+├──Supplementary_Tables
 ├── configs/
 │   └── default_config.json
 ├── docs/
