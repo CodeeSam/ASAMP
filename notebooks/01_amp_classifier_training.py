@@ -1325,7 +1325,7 @@ if len(test_embeddings) >= 6:
 else:
     print("Too few test samples for stable t-SNE; skipping embedding figure.")
 
-# Build external benchmark set: 150 AMP vs 150 non-AMP
+# Build external benchmark set: 250 AMP vs 250 non-AMP
 
 import os
 import re
@@ -1350,8 +1350,8 @@ EXT_CFG = {
     "out_dir": str(DIRS["data"] / "external_benchmark"),
     "min_len": 10,
     "max_len": 50,
-    "n_amp": 150,
-    "n_nonamp": 150,
+    "n_amp": 250,
+    "n_nonamp": 250,
     "uniprot_batch_size": 500,
     "uniprot_max_records_to_collect": 5000,
 }
@@ -1596,12 +1596,12 @@ print("\nFinal leakage checks passed.")
 external_df = pd.concat([ext_amp_final, ext_nonamp_final], ignore_index=True)
 external_df = external_df.sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
 
-external_csv = ext_out / "external_dataset_150v150.csv"
-external_amp_csv = ext_out / "external_AMPs_150.csv"
-external_nonamp_csv = ext_out / "external_nonAMPs_150.csv"
+external_csv = ext_out / "external_dataset_250v250.csv"
+external_amp_csv = ext_out / "external_AMPs_250.csv"
+external_nonamp_csv = ext_out / "external_nonAMPs_250.csv"
 
-external_amp_fasta = ext_out / "external_AMPs_150.fasta"
-external_nonamp_fasta = ext_out / "external_nonAMPs_150.fasta"
+external_amp_fasta = ext_out / "external_AMPs_250.fasta"
+external_nonamp_fasta = ext_out / "external_nonAMPs_250.fasta"
 
 external_df.to_csv(external_csv, index=False)
 ext_amp_final.to_csv(external_amp_csv, index=False)
@@ -1629,8 +1629,8 @@ print(manifest)
 # External benchmark evaluation
 
 external_dir = DIRS["data"] / "external_benchmark"
-external_amp_fasta = external_dir / "external_AMPs_150.fasta"
-external_nonamp_fasta = external_dir / "external_nonAMPs_150.fasta"
+external_amp_fasta = external_dir / "external_AMPs_250.fasta"
+external_nonamp_fasta = external_dir / "external_nonAMPs_250.fasta"
 
 if not external_amp_fasta.exists():
     raise FileNotFoundError(f"Missing external AMP FASTA: {external_amp_fasta}")
